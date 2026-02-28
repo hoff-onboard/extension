@@ -1,0 +1,9 @@
+{
+  "name": "hoff-extension",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hoff — hands-off onboarding chrome extension",
+  "dependencies": {
+    "driver.js": "^1.3.1"
+  }
+}
