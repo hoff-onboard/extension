@@ -213,6 +213,80 @@
     driverObj.drive(startIndex);
   }
 
+  /** Show a minimized "Continue" pill in the bottom-right corner. */
+  function showResumePill(payload, stepIndex) {
+    const brand = payload.brand;
+    const total = payload.workflow.steps.length;
+
+    const pill = document.createElement("div");
+    pill.id = "hoff-resume-pill";
+    pill.innerHTML = `
+      <span>Continue? <strong>${stepIndex}/${total}</strong></span>
+      <button id="hoff-resume-btn">&#9654;</button>
+      <button id="hoff-dismiss-btn">&times;</button>
+    `;
+    pill.style.cssText = `
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 2147483647;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: ${brand.background};
+      color: ${brand.text};
+      font-family: ${brand.fontFamily};
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: ${brand.borderRadius};
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      border: 1px solid ${brand.primary};
+      cursor: default;
+      animation: hoffSlideIn 0.3s ease-out;
+    `;
+
+    const styleTag = document.createElement("style");
+    styleTag.textContent = `
+      @keyframes hoffSlideIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      #hoff-resume-pill button {
+        background: ${brand.primary};
+        color: #fff;
+        border: none;
+        border-radius: ${brand.borderRadius};
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #hoff-resume-pill button:hover { filter: brightness(1.15); }
+      #hoff-dismiss-btn { background: transparent !important; color: ${brand.text} !important; opacity: 0.5; }
+      #hoff-dismiss-btn:hover { opacity: 1 !important; }
+    `;
+    document.head.appendChild(styleTag);
+    document.body.appendChild(pill);
+
+    document.getElementById("hoff-resume-btn").addEventListener("click", async () => {
+      pill.remove();
+      styleTag.remove();
+      const targetStep = payload.workflow.steps[stepIndex];
+      if (targetStep) await waitForElement(targetStep.element);
+      startTour(payload, stepIndex);
+    });
+
+    document.getElementById("hoff-dismiss-btn").addEventListener("click", () => {
+      pill.remove();
+      styleTag.remove();
+      clearTourState();
+    });
+  }
+
   // On page load, check if we need to resume a tour after navigation
   chrome.storage.local.get(STORAGE_KEY, async (result) => {
     const state = result[STORAGE_KEY];
@@ -225,9 +299,8 @@
       return;
     }
 
-    // Wait for the target element to appear in the DOM
-    await waitForElement(targetStep.element);
-    startTour(payload, stepIndex);
+    // Show the resume pill instead of auto-starting
+    showResumePill(payload, stepIndex);
   });
 
   // Listen for messages from the popup
