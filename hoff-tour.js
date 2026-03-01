@@ -127,14 +127,28 @@
     chrome.storage.local.remove(TOUR_STORAGE_KEY);
   }
 
+  /**
+   * Find a DOM element for a step.
+   * Uses CSS selector (step.element) when no text field is set.
+   * Falls back to tag + textContent matching when step.text is present.
+   */
+  function findElement(step) {
+    if (step.text) {
+      return [...document.querySelectorAll(step.element)].find(
+        (el) => el.textContent.trim() === step.text
+      ) || null;
+    }
+    return document.querySelector(step.element);
+  }
+
   /** Wait for an element to appear in the DOM. */
-  function waitForElement(selector, timeout = 5000) {
+  function waitForElement(step, timeout = 5000) {
     return new Promise((resolve) => {
-      const el = document.querySelector(selector);
+      const el = findElement(step);
       if (el) return resolve(el);
 
       const observer = new MutationObserver(() => {
-        const el = document.querySelector(selector);
+        const el = findElement(step);
         if (el) {
           observer.disconnect();
           resolve(el);
@@ -144,7 +158,7 @@
 
       setTimeout(() => {
         observer.disconnect();
-        resolve(document.querySelector(selector));
+        resolve(findElement(step));
       }, timeout);
     });
   }
@@ -155,7 +169,10 @@
 
     return rawSteps.map((s, i) => {
       const step = {
-        element: s.element,
+        // Text-based steps: use a function so driver.js finds the right element
+        element: s.text
+          ? () => findElement(s)
+          : s.element,
         popover: {
           title: s.title,
           description: s.description,
@@ -193,7 +210,7 @@
         }
 
         // Attach click-to-advance (skip inputs)
-        const highlightedEl = el || document.querySelector(s.element);
+        const highlightedEl = el || findElement(s);
         const isInput =
           highlightedEl &&
           (highlightedEl.tagName === "INPUT" ||
@@ -246,7 +263,7 @@
           } else {
             clearTourState();
           }
-          const target = el || document.querySelector(s.element);
+          const target = el || findElement(s);
           if (activeDriverObj) activeDriverObj.destroy();
           if (target) {
             if (target.tagName === "A" && target.href) {
@@ -323,6 +340,7 @@
     },
 
     clearState: clearTourState,
+    findElement: findElement,
     waitForElement: waitForElement,
   };
 })();

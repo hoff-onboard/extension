@@ -13,7 +13,7 @@
   /** Start a workflow from a pill click — navigate to URL if first step element isn't on page */
   async function startFromPill(payload) {
     const firstStep = payload.workflow.steps[0];
-    const el = firstStep ? document.querySelector(firstStep.element) : null;
+    const el = firstStep ? HoffTour.findElement(firstStep) : null;
     if (!el && payload.url) {
       HoffTour.clearState();
       await chrome.storage.local.set({
@@ -73,7 +73,7 @@
               window.location.href = lastUrl;
               return;
             }
-            await HoffTour.waitForElement(targetStep.element);
+            await HoffTour.waitForElement(targetStep);
           }
           HoffTour.start(payload, stepIndex);
         },
@@ -103,7 +103,7 @@
       }
 
       // Try to find the element on this page
-      const el = await HoffTour.waitForElement(targetStep.element, 3000);
+      const el = await HoffTour.waitForElement(targetStep, 3000);
       if (el) {
         // Element exists — auto-resume
         HoffUI.setTourActive(true);

@@ -5,7 +5,7 @@ function hoffMockBackend(query) {
   return new Promise((resolve) => {
     setTimeout(async () => {
       try {
-        const payloadUrl = chrome.runtime.getURL("test-flows/bu3.json");
+        const payloadUrl = chrome.runtime.getURL("test-flows/bu4.json");
         const payload = await (await fetch(payloadUrl)).json();
         resolve(payload);
       } catch (e) {

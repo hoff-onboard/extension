@@ -1,0 +1,98 @@
+{
+    "url": "https://cloud.browser-use.com/",
+    "brand": {
+      "primary": "#1F883D",
+      "background": "#0D1117",
+      "text": "#F0F6FC",
+      "fontFamily": "-apple-system, system-ui, Segoe UI, Noto Sans, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji",
+      "borderRadius": "6px"
+    },
+    "workflow":
+      {
+        "name": "How can I schedule an agent to run every day and also configure it to receive a name in metadata?",
+        "description": "Schedule an agent to run daily and configure metadata with a name",
+        "steps": [
+          {
+            "element": "[aria-label=\"Agent Sessions\"]",
+            "text": null,
+            "title": "Open Agent Sessions",
+            "description": "Click on Agent Sessions in the sidebar to view your agents.",
+            "side": "right",
+            "navigates": true,
+            "dynamic": false
+          },
+          {
+            "element": "[aria-label=\"Scheduled Jobs\"]",
+            "text": null,
+            "title": "Open Scheduled Jobs",
+            "description": "Click on Scheduled Jobs in the sidebar to manage agent schedules.",
+            "side": "right",
+            "navigates": true,
+            "dynamic": false
+          },
+          {
+            "element": "button",
+            "text": "Schedule Agent",
+            "title": "Schedule Agent",
+            "description": "Click the Schedule Agent button to start creating a new scheduled job.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "#agent-task",
+            "text": null,
+            "title": "Describe Task",
+            "description": "Enter a description of what the agent should do in the Task field.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "button",
+            "text": "Every hour",
+            "title": "Set Schedule",
+            "description": "Click on the schedule dropdown to select the frequency.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "div",
+            "text": "Every day at midnight (UTC)",
+            "title": "Select Daily Frequency",
+            "description": "Select 'Every day at midnight (UTC)' from the dropdown to schedule the agent daily.",
+            "side": "right",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "button",
+            "text": "Advanced Options",
+            "title": "Open Advanced Options",
+            "description": "Click on Advanced Options to reveal additional settings like metadata.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "textarea",
+            "text": "{\"key\": \"value\"}",
+            "title": "Configure Metadata",
+            "description": "Enter your JSON metadata here, for example: {\"name\": \"My Daily Agent\"}.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "button",
+            "text": "Create Scheduled Job",
+            "title": "Create Scheduled Job",
+            "description": "Click the 'Create Scheduled Job' button to save and activate your daily agent.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          }
+        ]
+      }
+  }
