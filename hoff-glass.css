@@ -66,8 +66,8 @@
 }
 
 #hoff-logo-btn img {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
 }
 
 [data-hoff-theme="light"] #hoff-logo-btn img {
@@ -365,7 +365,7 @@
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-  padding: 2px;
+  padding: 6px 4px;
 }
 
 #hoff-pills-container::-webkit-scrollbar {
@@ -416,6 +416,7 @@
 .hoff-pill.complete:hover {
   transform: scale(1.03);
   box-shadow: 0 10px 36px rgba(0, 0, 0, 0.3);
+  z-index: 10;
 }
 
 .hoff-pill .hoff-pill-text {
@@ -479,6 +480,31 @@
   font-weight: 700;
   animation: hoffScaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
   flex-shrink: 0;
+}
+
+/* --- Pill Tooltip --- */
+#hoff-pill-tooltip {
+  display: none;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #e0e0e0;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.4;
+  padding: 8px 12px;
+  border-radius: 10px;
+  white-space: normal;
+  pointer-events: none;
+  z-index: 2147483647;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  animation: hoffFadeIn 0.15s ease-out;
+}
+
+@keyframes hoffFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* --- Floating Logo Button (minimized state) --- */

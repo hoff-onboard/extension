@@ -288,6 +288,17 @@
 
   /** Delete selected pills */
   function deleteSelected() {
+    const domain = window.location.hostname;
+    const toDelete = pills.filter((p) => selectedIds.has(p.id));
+
+    // Soft-delete each workflow in the backend (fire-and-forget)
+    for (const pill of toDelete) {
+      const name = pill.workflowPayload?.workflow?.name || pill.text;
+      fetch(`http://localhost:8000/workflows/${encodeURIComponent(domain)}/${encodeURIComponent(name)}`, {
+        method: "DELETE",
+      }).catch(() => {});
+    }
+
     pills = pills.filter((p) => !selectedIds.has(p.id));
     selectedIds.clear();
     savePills();
@@ -337,6 +348,30 @@
       check.className = "hoff-check";
       check.textContent = "✓";
       el.appendChild(check);
+
+      // Tooltip with workflow description on hover
+      const desc = pill.workflowPayload?.workflow?.description;
+      if (desc) {
+        el.addEventListener("mouseenter", () => {
+          let tooltip = document.getElementById("hoff-pill-tooltip");
+          if (!tooltip) {
+            tooltip = document.createElement("div");
+            tooltip.id = "hoff-pill-tooltip";
+            document.getElementById("hoff-pills-box").appendChild(tooltip);
+          }
+          tooltip.textContent = desc;
+          tooltip.style.display = "block";
+          const boxRect = document.getElementById("hoff-pills-box").getBoundingClientRect();
+          const pillRect = el.getBoundingClientRect();
+          tooltip.style.left = (pillRect.left - boxRect.left) + "px";
+          tooltip.style.top = (pillRect.top - boxRect.top - tooltip.offsetHeight - 8) + "px";
+          tooltip.style.width = pillRect.width + "px";
+        });
+        el.addEventListener("mouseleave", () => {
+          const tooltip = document.getElementById("hoff-pill-tooltip");
+          if (tooltip) tooltip.style.display = "none";
+        });
+      }
     }
 
     return el;
@@ -457,11 +492,11 @@
     /** Add a new query pill (loading state) */
     addPill(id, queryText) {
       const pill = { id, text: queryText, status: "loading", workflowPayload: null };
-      pills.push(pill);
+      pills.unshift(pill);
       savePills();
       const el = renderPill(pill);
       el.classList.add("hoff-new");
-      pillsContainer.appendChild(el);
+      pillsContainer.prepend(el);
     },
 
     /** Mark a pill as complete */
