@@ -219,18 +219,28 @@
     headerTop.appendChild(selectBtn);
     header.appendChild(headerTop);
 
-    // Delete bar (hidden by default)
+    // Action bar (hidden by default)
     const deleteBar = document.createElement("div");
     deleteBar.id = "hoff-delete-bar";
     deleteBar.style.display = "none";
+
+    const selectAllBtn = document.createElement("button");
+    selectAllBtn.id = "hoff-select-all-btn";
+    selectAllBtn.textContent = "Select All";
+    selectAllBtn.addEventListener("click", () => selectAll());
+
     const deleteBtn = document.createElement("button");
     deleteBtn.id = "hoff-delete-btn";
-    deleteBtn.textContent = "Delete selected";
+    deleteBtn.textContent = "Delete All";
+    deleteBtn.style.display = "none";
     deleteBtn.addEventListener("click", () => deleteSelected());
+
     const cancelBtn = document.createElement("button");
     cancelBtn.id = "hoff-cancel-select-btn";
     cancelBtn.textContent = "Cancel";
     cancelBtn.addEventListener("click", () => toggleSelectMode());
+
+    deleteBar.appendChild(selectAllBtn);
     deleteBar.appendChild(deleteBtn);
     deleteBar.appendChild(cancelBtn);
     header.appendChild(deleteBar);
@@ -256,7 +266,24 @@
       deleteBar.style.display = "none";
       selectBtn.classList.remove("active");
     }
+    updateDeleteBarButtons();
     renderAllPills();
+  }
+
+  /** Select all pills */
+  function selectAll() {
+    pills.forEach((p) => selectedIds.add(p.id));
+    updateDeleteBarButtons();
+    renderAllPills();
+  }
+
+  /** Update visibility of Select All vs Delete All buttons */
+  function updateDeleteBarButtons() {
+    const selectAllBtn = document.getElementById("hoff-select-all-btn");
+    const deleteBtn = document.getElementById("hoff-delete-btn");
+    const allSelected = pills.length > 0 && selectedIds.size === pills.length;
+    selectAllBtn.style.display = allSelected ? "none" : "";
+    deleteBtn.style.display = allSelected ? "" : "none";
   }
 
   /** Delete selected pills */
@@ -265,6 +292,12 @@
     selectedIds.clear();
     savePills();
     toggleSelectMode();
+    // Dismiss any active continue prompt and clear tour state
+    // to avoid getting stuck on a deleted flow's continue prompt
+    if (typeof HoffTour !== "undefined" && HoffTour.clearState) {
+      HoffTour.clearState();
+    }
+    setInputMode();
   }
 
   /** Render a single pill DOM element */
@@ -283,6 +316,7 @@
         } else {
           selectedIds.add(pill.id);
         }
+        updateDeleteBarButtons();
         renderAllPills();
       });
       el.appendChild(circle);
