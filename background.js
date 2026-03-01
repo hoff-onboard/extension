@@ -7,6 +7,22 @@ chrome.action.onClicked.addListener(async (tab) => {
   }
 });
 
+// Proxy fetch requests from content scripts to bypass Private Network Access restrictions
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "proxyFetch") {
+    const { url, options } = message;
+    fetch(url, options)
+      .then(async (res) => {
+        const body = await res.text();
+        sendResponse({ ok: res.ok, status: res.status, body });
+      })
+      .catch((err) => {
+        sendResponse({ ok: false, status: 0, body: "", error: err.message });
+      });
+    return true;
+  }
+});
+
 // Cookie extraction for authenticated browser-use sessions
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "getCookies" && message.url) {

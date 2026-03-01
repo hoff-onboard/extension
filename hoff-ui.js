@@ -15,14 +15,16 @@
   let tourActive = false;
   let selectMode = false;
   let selectedIds = new Set();
+  let researchMode = false;
 
   /** Detect if page background is light or dark */
   function detectTheme() {
     const bg = window.getComputedStyle(document.body).backgroundColor;
-    const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (!match) return "dark";
+    const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (!match) return "light"; // no background set → browser default is white
     const [, r, g, b] = match.map(Number);
-    // Relative luminance formula
+    const alpha = match[4] !== undefined ? parseFloat(match[4]) : 1;
+    if (alpha < 0.1) return "light"; // transparent → browser default white
     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
     return luminance > 0.5 ? "light" : "dark";
   }
@@ -125,6 +127,21 @@
     container.appendChild(chatBar);
   }
 
+  /** Create the planning-mode toggle button */
+  function createResearchBtn() {
+    const btn = document.createElement("button");
+    btn.id = "hoff-research-btn";
+    btn.title = "Plan & research the query before extracting the flow";
+    btn.textContent = "P";
+    if (researchMode) btn.classList.add("active");
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      researchMode = !researchMode;
+      btn.classList.toggle("active", researchMode);
+    });
+    return btn;
+  }
+
   /** Set the chat bar to default input mode */
   function setInputMode() {
     chatBar.classList.remove("hoff-loading");
@@ -144,6 +161,7 @@
       }
     });
     chatBar.appendChild(input);
+    chatBar.appendChild(createResearchBtn());
   }
 
   /** Make the pills box draggable by its header */
@@ -291,12 +309,14 @@
     const domain = window.location.hostname;
     const toDelete = pills.filter((p) => selectedIds.has(p.id));
 
-    // Soft-delete each workflow in the backend (fire-and-forget)
+    // Soft-delete each workflow in the backend (fire-and-forget via background proxy)
     for (const pill of toDelete) {
       const name = pill.workflowPayload?.workflow?.name || pill.text;
-      fetch(`http://localhost:8000/workflows/${encodeURIComponent(domain)}/${encodeURIComponent(name)}`, {
-        method: "DELETE",
-      }).catch(() => {});
+      chrome.runtime.sendMessage({
+        action: "proxyFetch",
+        url: `http://localhost:8000/workflows/${encodeURIComponent(domain)}/${encodeURIComponent(name)}`,
+        options: { method: "DELETE" },
+      }, () => {});
     }
 
     pills = pills.filter((p) => !selectedIds.has(p.id));
@@ -484,6 +504,15 @@
       chatBar.appendChild(prompt);
     },
 
+    /** Flash the chat bar red to indicate an error, then return to input */
+    showError() {
+      setInputMode();
+      chatBar.classList.add("hoff-error");
+      chatBar.addEventListener("animationend", () => {
+        chatBar.classList.remove("hoff-error");
+      }, { once: true });
+    },
+
     /** Reset chat bar to default input mode */
     resetInput() {
       setInputMode();
@@ -516,6 +545,11 @@
       pill._clickHandler = callback;
       // Re-render to attach handler
       renderAllPills();
+    },
+
+    /** Get current research mode state */
+    getResearchMode() {
+      return researchMode;
     },
 
     /** Get all pills */

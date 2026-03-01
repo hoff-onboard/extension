@@ -29,14 +29,23 @@
     return [{ origin, localStorage, sessionStorage }];
   }
 
-  async function queryBackend(query, url, cookies, origins) {
-    const res = await fetch(`${BACKEND_URL}/query`, {
+  /** Route fetch through the background service worker to bypass PNA restrictions */
+  function bgFetch(url, options) {
+    return new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage({ action: "proxyFetch", url, options }, (resp) => {
+        if (!resp || resp.error) return reject(new Error(resp?.error || "proxyFetch failed"));
+        if (!resp.ok) return reject(new Error(`Backend responded ${resp.status}`));
+        resolve(JSON.parse(resp.body));
+      });
+    });
+  }
+
+  async function queryBackend(query, url, cookies, origins, useResearch) {
+    return bgFetch(`${BACKEND_URL}/query`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query, url, cookies, origins }),
+      body: JSON.stringify({ query, url, cookies, origins, use_research: useResearch }),
     });
-    if (!res.ok) throw new Error(`Backend responded ${res.status}`);
-    return await res.json();
   }
 
   let pillIdCounter = Date.now();
@@ -75,8 +84,6 @@
 
     // 2. Wire up the chat submit handler
     HoffUI.onSubmit = async (query) => {
-      const id = generatePillId();
-      HoffUI.addPill(id, query);
       HoffUI.setLoading(true);
 
       let payload;
@@ -84,25 +91,32 @@
         const url = window.location.href;
         const cookies = await getCookies(url);
         const origins = getOrigins();
-        const response = await queryBackend(query, url, cookies, origins);
+        const useResearch = HoffUI.getResearchMode();
+        const response = await queryBackend(query, url, cookies, origins, useResearch);
         // Backend returns { url, brand, workflows[] } — tour expects { url, brand, workflow }
         if (response && response.workflows && response.workflows.length > 0) {
           payload = { url: response.url, brand: response.brand, workflow: response.workflows[0] };
         }
       } catch (e) {
-        console.warn("Hoff: backend unreachable, falling back to mock:", e);
-        payload = await hoffMockBackend(query);
+        console.warn("Hoff: backend error:", e);
+        HoffUI.showError();
+        return;
+      }
+
+      if (!payload) {
+        HoffUI.showError();
+        return;
       }
 
       HoffUI.setLoading(false);
 
-      if (payload) {
-        HoffUI.completePill(id, payload);
-        HoffUI.setPillClickHandler(id, () => startFromPill(payload));
+      const id = generatePillId();
+      HoffUI.addPill(id, query);
+      HoffUI.completePill(id, payload);
+      HoffUI.setPillClickHandler(id, () => startFromPill(payload));
 
-        // Auto-start the tour
-        startWorkflow(payload);
-      }
+      // Auto-start the tour
+      startWorkflow(payload);
     };
 
     // 3. Wire tour collapse → show continue prompt in chat bar
@@ -146,9 +160,8 @@
     // 4.5. Fetch saved workflows from backend for this domain
     try {
       const domain = window.location.hostname;
-      const res = await fetch(`${BACKEND_URL}/workflows/${encodeURIComponent(domain)}`);
-      if (res.ok) {
-        const data = await res.json();
+      const data = await bgFetch(`${BACKEND_URL}/workflows/${encodeURIComponent(domain)}`);
+      {
         const existingPills = HoffUI.getPills();
         const existingNames = new Set(existingPills.map((p) => p.text));
 

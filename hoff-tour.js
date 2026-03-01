@@ -13,9 +13,11 @@
   /** Detect if page background is light or dark */
   function detectTheme() {
     const bg = window.getComputedStyle(document.body).backgroundColor;
-    const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (!match) return "dark";
+    const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (!match) return "light"; // no background set → browser default is white
     const [, r, g, b] = match.map(Number);
+    const alpha = match[4] !== undefined ? parseFloat(match[4]) : 1;
+    if (alpha < 0.1) return "light"; // transparent → browser default white
     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
     return luminance > 0.5 ? "light" : "dark";
   }
@@ -24,12 +26,12 @@
   function generateGlassCSS() {
     const isDark = detectTheme() === "dark";
     const textColor = isDark ? "#fff" : "#111";
-    const glassBg = isDark ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.08)";
-    const glassBorder = isDark ? "rgba(255, 255, 255, 0.18)" : "rgba(0, 0, 0, 0.1)";
-    const arrowBg = isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(0, 0, 0, 0.1)";
-    const btnBg = isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(0, 0, 0, 0.08)";
-    const btnHoverBg = isDark ? "rgba(255, 255, 255, 0.25)" : "rgba(0, 0, 0, 0.15)";
-    const shadow = isDark ? "0 8px 32px rgba(0, 0, 0, 0.25)" : "0 8px 32px rgba(0, 0, 0, 0.1)";
+    const glassBg = isDark ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.06)";
+    const glassBorder = isDark ? "rgba(255, 255, 255, 0.18)" : "rgba(0, 0, 0, 0.18)";
+    const arrowBg = isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(0, 0, 0, 0.15)";
+    const btnBg = isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(0, 0, 0, 0.1)";
+    const btnHoverBg = isDark ? "rgba(255, 255, 255, 0.25)" : "rgba(0, 0, 0, 0.18)";
+    const shadow = isDark ? "0 8px 32px rgba(0, 0, 0, 0.25)" : "0 8px 32px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.08)";
 
     return `
       .driver-popover.hoff-theme {
@@ -128,6 +130,11 @@
     chrome.storage.local.remove(TOUR_STORAGE_KEY);
   }
 
+  /** Collapse all whitespace runs into a single space for fuzzy text matching. */
+  function normalizeWS(str) {
+    return str.replace(/\s+/g, " ").trim();
+  }
+
   /**
    * Find a DOM element for a step.
    * Uses CSS selector (step.element) when no text field is set.
@@ -135,8 +142,9 @@
    */
   function findElement(step) {
     if (step.text) {
+      const needle = normalizeWS(step.text);
       return [...document.querySelectorAll(step.element)].find(
-        (el) => el.textContent.trim().includes(step.text)
+        (el) => normalizeWS(el.textContent).includes(needle)
       ) || null;
     }
     return document.querySelector(step.element);
