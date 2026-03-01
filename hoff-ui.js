@@ -4,7 +4,7 @@
 (function () {
   "use strict";
 
-  const PILLS_STORAGE_KEY = "hoff_pills";
+  const PILLS_STORAGE_KEY = "hoff_pills_" + window.location.hostname;
   let container = null; // Root element with data-hoff-theme
   let chatBar = null;
   let pillsBox = null;
@@ -205,7 +205,7 @@
     title.textContent = "Your flows";
     const subtitle = document.createElement("div");
     subtitle.className = "hoff-pills-subtitle";
-    subtitle.textContent = "Workflows we've helped you navigate";
+    subtitle.innerHTML = "Workflows we've helped you navigate in <span class=\"hoff-domain-highlight\">" + window.location.hostname + "</span>";
     titleWrap.appendChild(title);
     titleWrap.appendChild(subtitle);
 

@@ -66,8 +66,8 @@
 }
 
 #hoff-logo-btn img {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
 }
 
 [data-hoff-theme="light"] #hoff-logo-btn img {
@@ -355,6 +355,22 @@
   margin-top: 2px;
 }
 
+.hoff-domain-highlight {
+  opacity: 1;
+  font-weight: 600;
+  background: linear-gradient(90deg, #a78bfa, #60a5fa, #a78bfa);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: hoffShimmer 3s ease-in-out infinite;
+}
+
+@keyframes hoffShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 #hoff-pills-container {
   display: flex;
   flex-direction: column;
@@ -541,8 +557,8 @@
 }
 
 #hoff-floating-btn img {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
 }
 
 [data-hoff-theme="light"] #hoff-floating-btn img {
