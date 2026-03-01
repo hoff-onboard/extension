@@ -4,6 +4,41 @@
 (function () {
   "use strict";
 
+  const BACKEND_URL = "http://localhost:8000";
+
+  function getCookies(url) {
+    return new Promise((resolve) => {
+      chrome.runtime.sendMessage({ action: "getCookies", url }, (cookies) => {
+        resolve(cookies || []);
+      });
+    });
+  }
+
+  function getOrigins() {
+    const origin = window.location.origin;
+    const localStorage = [];
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const name = window.localStorage.key(i);
+      localStorage.push({ name, value: window.localStorage.getItem(name) });
+    }
+    const sessionStorage = [];
+    for (let i = 0; i < window.sessionStorage.length; i++) {
+      const name = window.sessionStorage.key(i);
+      sessionStorage.push({ name, value: window.sessionStorage.getItem(name) });
+    }
+    return [{ origin, localStorage, sessionStorage }];
+  }
+
+  async function queryBackend(query, url, cookies, origins) {
+    const res = await fetch(`${BACKEND_URL}/query`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, url, cookies, origins }),
+    });
+    if (!res.ok) throw new Error(`Backend responded ${res.status}`);
+    return await res.json();
+  }
+
   let pillIdCounter = Date.now();
 
   function generatePillId() {
@@ -44,7 +79,16 @@
       HoffUI.addPill(id, query);
       HoffUI.setLoading(true);
 
-      const payload = await hoffMockBackend(query);
+      let payload;
+      try {
+        const url = window.location.href;
+        const cookies = await getCookies(url);
+        const origins = getOrigins();
+        payload = await queryBackend(query, url, cookies, origins);
+      } catch (e) {
+        console.warn("Hoff: backend unreachable, falling back to mock:", e);
+        payload = await hoffMockBackend(query);
+      }
 
       HoffUI.setLoading(false);
 

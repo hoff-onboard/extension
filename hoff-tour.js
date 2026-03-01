@@ -8,6 +8,7 @@
   let activeDriverObj = null;
   let isNavigating = false;
   let injectedStyle = null;
+  let tourGeneration = 0; // Incremented on each start(), used to cancel stale async handlers
 
   /** Detect if page background is light or dark */
   function detectTheme() {
@@ -141,13 +142,51 @@
     return document.querySelector(step.element);
   }
 
-  /** Dispatch a full mousedown→mouseup→click sequence (needed for React/Radix) */
-  function simulateClick(el) {
-    el.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, cancelable: true }));
-    el.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
-    el.dispatchEvent(new MouseEvent("pointerup", { bubbles: true, cancelable: true }));
-    el.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true }));
-    el.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+  /** Check if element is inside an ephemeral container (dropdown, popover, menu) */
+  function isInsideEphemeral(el) {
+    let node = el.parentElement;
+    while (node && node !== document.body) {
+      const role = node.getAttribute("role");
+      if (role === "listbox" || role === "menu" || role === "dialog" ||
+          node.hasAttribute("data-radix-popper-content-wrapper") ||
+          node.getAttribute("data-state") === "open") {
+        return true;
+      }
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  /** Reset an element corrupted by driver.js by detaching/reattaching it.
+   *  This forces React to reconcile and reset Radix's internal state.
+   *  For ephemeral elements (inside dropdowns), use pointer events instead.
+   *  For simple elements, just click directly. */
+  function resetAndClick(el) {
+    // Elements inside dropdowns/popovers: can't detach, use pointer events
+    if (isInsideEphemeral(el)) {
+      el.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
+      el.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true }));
+      el.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+      return Promise.resolve();
+    }
+    // Elements with Radix state (triggers): detach/reattach to reset React state
+    if (el.hasAttribute("aria-haspopup") || el.hasAttribute("data-state")) {
+      return new Promise((resolve) => {
+        const parent = el.parentElement;
+        const next = el.nextSibling;
+        parent.removeChild(el);
+        requestAnimationFrame(() => {
+          parent.insertBefore(el, next);
+          setTimeout(() => {
+            el.click();
+            resolve();
+          }, 100);
+        });
+      });
+    }
+    // Simple elements: plain click
+    el.click();
+    return Promise.resolve();
   }
 
   /** Wait for an element to appear in the DOM. */
@@ -228,13 +267,15 @@
             highlightedEl.getAttribute("role") === "textbox");
 
         if (highlightedEl && !isInput) {
+          const gen = tourGeneration;
           const handler = async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
             highlightedEl.removeEventListener("click", handler, true);
+            if (gen !== tourGeneration) return; // stale handler
 
             const isLastStep = i === rawSteps.length - 1;
             if (s.navigates) {
+              e.preventDefault();
+              e.stopPropagation();
               isNavigating = true;
               if (!isLastStep) {
                 await saveTourState(payload, i + 1, null);
@@ -247,22 +288,24 @@
               } else {
                 highlightedEl.click();
               }
-            } else if (isLastStep) {
-              isNavigating = true;
-              if (activeDriverObj) activeDriverObj.destroy();
-              clearTourState();
-              if (window.HoffTour.onComplete) window.HoffTour.onComplete();
             } else {
-              // Destroy overlay so user can interact with the real element
+              // Let the user's click go through naturally (no preventDefault)
               isNavigating = true;
               if (activeDriverObj) activeDriverObj.destroy();
-              // The user's click already went through — wait for next element then resume
-              const nextStep = rawSteps[i + 1];
-              if (nextStep) {
-                const nextEl = await waitForElement(nextStep, 5000);
-                if (nextEl) {
-                  isNavigating = false;
-                  window.HoffTour.start(payload, i + 1);
+
+              if (isLastStep) {
+                clearTourState();
+                if (window.HoffTour.onComplete) window.HoffTour.onComplete();
+              } else {
+                const nextStep = rawSteps[i + 1];
+                if (nextStep) {
+                  const nextEl = await waitForElement(nextStep, 10000);
+                  if (gen !== tourGeneration) return; // stale
+                  if (nextEl) {
+                    await new Promise((r) => setTimeout(r, 400));
+                    isNavigating = false;
+                    window.HoffTour.start(payload, i + 1);
+                  }
                 }
               }
             }
@@ -273,6 +316,7 @@
 
       // Handle the "Next" button
       step.popover.onNextClick = async () => {
+        const gen = tourGeneration;
         const isLastStep = i === rawSteps.length - 1;
         const target = findElement(s);
 
@@ -291,23 +335,36 @@
               target.click();
             }
           }
-        } else if (isLastStep) {
-          isNavigating = true;
-          if (activeDriverObj) activeDriverObj.destroy();
-          clearTourState();
-          if (window.HoffTour.onComplete) window.HoffTour.onComplete();
         } else {
-          // Destroy overlay so user can click the real element
           isNavigating = true;
           if (activeDriverObj) activeDriverObj.destroy();
 
-          // Show a "click the element to continue" hint and wait for next step's element
-          const nextStep = rawSteps[i + 1];
-          if (nextStep) {
-            const nextEl = await waitForElement(nextStep, 10000);
-            if (nextEl) {
-              isNavigating = false;
-              window.HoffTour.start(payload, i + 1);
+          // Re-find element after destroy (driver.js overlay is gone now)
+          const freshTarget = findElement(s);
+          const isInput =
+            freshTarget &&
+            (freshTarget.tagName === "INPUT" ||
+              freshTarget.tagName === "TEXTAREA" ||
+              freshTarget.isContentEditable ||
+              freshTarget.getAttribute("role") === "textbox");
+
+          if (isLastStep) {
+            clearTourState();
+            if (freshTarget && !isInput) await resetAndClick(freshTarget);
+            if (window.HoffTour.onComplete) window.HoffTour.onComplete();
+          } else {
+            if (freshTarget && !isInput) {
+              await resetAndClick(freshTarget);
+            }
+            const nextStep = rawSteps[i + 1];
+            if (nextStep) {
+              const nextEl = await waitForElement(nextStep, 10000);
+              if (gen !== tourGeneration) return; // stale
+              if (nextEl) {
+                await new Promise((r) => setTimeout(r, 400));
+                isNavigating = false;
+                window.HoffTour.start(payload, i + 1);
+              }
             }
           }
         }
@@ -324,6 +381,7 @@
 
     /** Start or resume a branded tour. */
     start(payload, startIndex = 0) {
+      tourGeneration++; // Cancel any stale async handlers from previous start()
       injectStyles(generateGlassCSS());
 
       const driverConstructor = window.driver.js.driver;
@@ -366,6 +424,15 @@
 
       activeDriverObj = driverObj;
       driverObj.drive(startIndex);
+
+      // Fix Radix aria-hidden conflict: when driver.js takes focus,
+      // Radix sets aria-hidden on dialogs. Remove it so elements stay accessible.
+      requestAnimationFrame(() => {
+        document.querySelectorAll('[role="dialog"][aria-hidden="true"]').forEach((dialog) => {
+          dialog.removeAttribute("aria-hidden");
+          dialog.removeAttribute("data-aria-hidden");
+        });
+      });
     },
 
     /** Check storage for an in-progress tour. Returns state or null. */
