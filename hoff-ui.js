@@ -372,6 +372,7 @@
       pills.push(pill);
       savePills();
       const el = renderPill(pill);
+      el.classList.add("hoff-new");
       pillsContainer.appendChild(el);
     },
 

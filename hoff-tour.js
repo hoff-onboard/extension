@@ -9,55 +9,62 @@
   let isNavigating = false;
   let injectedStyle = null;
 
-  /** Convert hex color to rgba string */
-  function hexToRgba(hex, alpha) {
-    const h = hex.replace("#", "");
-    const r = parseInt(h.substring(0, 2), 16);
-    const g = parseInt(h.substring(2, 4), 16);
-    const b = parseInt(h.substring(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  /** Detect if page background is light or dark */
+  function detectTheme() {
+    const bg = window.getComputedStyle(document.body).backgroundColor;
+    const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!match) return "dark";
+    const [, r, g, b] = match.map(Number);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.5 ? "light" : "dark";
   }
 
-  /** Generate scoped CSS from a brand config with glass treatment */
-  function generateBrandCSS(brand) {
-    const bgRgba = hexToRgba(brand.background, 0.75);
-    const bgRgbaArrow = hexToRgba(brand.background, 0.85);
+  /** Generate liquid glass CSS for tour popovers */
+  function generateGlassCSS() {
+    const isDark = detectTheme() === "dark";
+    const textColor = isDark ? "#fff" : "#111";
+    const glassBg = isDark ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.08)";
+    const glassBorder = isDark ? "rgba(255, 255, 255, 0.18)" : "rgba(0, 0, 0, 0.1)";
+    const arrowBg = isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(0, 0, 0, 0.1)";
+    const btnBg = isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(0, 0, 0, 0.08)";
+    const btnHoverBg = isDark ? "rgba(255, 255, 255, 0.25)" : "rgba(0, 0, 0, 0.15)";
+    const shadow = isDark ? "0 8px 32px rgba(0, 0, 0, 0.25)" : "0 8px 32px rgba(0, 0, 0, 0.1)";
 
     return `
       .driver-popover.hoff-theme {
-        background-color: ${bgRgba} !important;
-        color: ${brand.text};
-        font-family: ${brand.fontFamily};
-        border-radius: ${brand.borderRadius};
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+        background-color: ${glassBg} !important;
+        color: ${textColor};
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        border-radius: 18px;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border: 1px solid ${glassBorder} !important;
+        box-shadow: ${shadow} !important;
         animation: hoffFadeScale 0.25s ease-out;
       }
 
       .driver-popover.hoff-theme .driver-popover-title {
-        color: ${brand.text};
+        color: ${textColor};
         font-size: 17px;
         font-weight: 600;
       }
 
       .driver-popover.hoff-theme .driver-popover-description {
-        color: ${brand.text};
+        color: ${textColor};
         opacity: 0.85;
       }
 
       .driver-popover.hoff-theme .driver-popover-progress-text {
-        color: ${brand.text};
+        color: ${textColor};
         opacity: 0.6;
       }
 
       .driver-popover.hoff-theme .driver-popover-close-btn {
-        color: ${brand.text};
+        color: ${textColor};
         opacity: 0.5;
       }
       .driver-popover.hoff-theme .driver-popover-close-btn:hover {
-        color: ${brand.text};
+        color: ${textColor};
         opacity: 1;
       }
 
@@ -66,31 +73,35 @@
       }
 
       .driver-popover.hoff-theme button:not(.driver-popover-close-btn) {
-        background-color: ${brand.primary};
-        color: #fff;
-        border: none;
-        border-radius: ${brand.borderRadius};
+        background-color: ${btnBg};
+        color: ${textColor};
+        border: 1px solid ${glassBorder};
+        border-radius: 14px;
         padding: 6px 14px;
         font-size: 13px;
         font-weight: 500;
         text-shadow: none;
         cursor: pointer;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        transition: background 0.2s ease, transform 0.15s ease;
       }
       .driver-popover.hoff-theme button:not(.driver-popover-close-btn):hover {
-        filter: brightness(1.15);
+        background-color: ${btnHoverBg};
+        transform: scale(1.03);
       }
 
       .driver-popover.hoff-theme .driver-popover-arrow-side-top.driver-popover-arrow {
-        border-top-color: ${bgRgbaArrow};
+        border-top-color: ${arrowBg};
       }
       .driver-popover.hoff-theme .driver-popover-arrow-side-bottom.driver-popover-arrow {
-        border-bottom-color: ${bgRgbaArrow};
+        border-bottom-color: ${arrowBg};
       }
       .driver-popover.hoff-theme .driver-popover-arrow-side-left.driver-popover-arrow {
-        border-left-color: ${bgRgbaArrow};
+        border-left-color: ${arrowBg};
       }
       .driver-popover.hoff-theme .driver-popover-arrow-side-right.driver-popover-arrow {
-        border-right-color: ${bgRgbaArrow};
+        border-right-color: ${arrowBg};
       }
     `;
   }
@@ -258,11 +269,12 @@
 
     /** Start or resume a branded tour. */
     start(payload, startIndex = 0) {
-      injectStyles(generateBrandCSS(payload.brand));
+      injectStyles(generateGlassCSS());
 
       const driverConstructor = window.driver.js.driver;
       const steps = mapSteps(payload, startIndex);
 
+      const isDark = detectTheme() === "dark";
       const driverObj = driverConstructor({
         popoverClass: "hoff-theme",
         animate: true,
@@ -270,8 +282,8 @@
         allowClose: true,
         overlayClickBehavior: "close",
         allowKeyboardControl: true,
-        overlayColor: payload.brand.background,
-        overlayOpacity: 0.6,
+        overlayColor: isDark ? "#000" : "#000",
+        overlayOpacity: isDark ? 0.5 : 0.3,
         stagePadding: 8,
         stageRadius: 6,
         steps: steps,
