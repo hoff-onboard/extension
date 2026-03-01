@@ -84,7 +84,11 @@
         const url = window.location.href;
         const cookies = await getCookies(url);
         const origins = getOrigins();
-        payload = await queryBackend(query, url, cookies, origins);
+        const response = await queryBackend(query, url, cookies, origins);
+        // Backend returns { url, brand, workflows[] } — tour expects { url, brand, workflow }
+        if (response && response.workflows && response.workflows.length > 0) {
+          payload = { url: response.url, brand: response.brand, workflow: response.workflows[0] };
+        }
       } catch (e) {
         console.warn("Hoff: backend unreachable, falling back to mock:", e);
         payload = await hoffMockBackend(query);
@@ -138,6 +142,28 @@
       HoffUI.expandChatBar();
       HoffUI.resetInput();
     };
+
+    // 4.5. Fetch saved workflows from backend for this domain
+    try {
+      const domain = window.location.hostname;
+      const res = await fetch(`${BACKEND_URL}/workflows/${encodeURIComponent(domain)}`);
+      if (res.ok) {
+        const data = await res.json();
+        const existingPills = HoffUI.getPills();
+        const existingNames = new Set(existingPills.map((p) => p.text));
+
+        for (const wf of data.workflows || []) {
+          if (existingNames.has(wf.name)) continue;
+          const id = generatePillId();
+          const wfPayload = { url: data.url, brand: data.brand, workflow: wf };
+          HoffUI.addPill(id, wf.name);
+          HoffUI.completePill(id, wfPayload);
+          HoffUI.setPillClickHandler(id, () => startFromPill(wfPayload));
+        }
+      }
+    } catch (e) {
+      console.debug("Hoff: no saved workflows for this domain", e);
+    }
 
     // 5. Check for an in-progress tour to resume
     const tourState = await HoffTour.getStoredState();
