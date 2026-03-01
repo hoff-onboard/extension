@@ -104,6 +104,8 @@
   function setupClickOutside() {
     document.addEventListener("click", (e) => {
       if (tourActive || isMinimized) return;
+      // Only minimize when in default input mode (not during loading or continue prompt)
+      if (!chatBar.querySelector("input")) return;
       // Don't minimize if clicking inside any Hoff element
       if (container && container.contains(e.target)) return;
       // Don't minimize if clicking inside driver.js popover
@@ -336,7 +338,7 @@
       prompt.className = "hoff-continue-prompt";
 
       const label = document.createElement("span");
-      label.textContent = "Continue onboarding?";
+      label.textContent = "Continue flow?";
 
       const yesBtn = document.createElement("button");
       yesBtn.className = "hoff-continue-btn hoff-yes";
@@ -352,7 +354,6 @@
       noBtn.addEventListener("click", () => {
         setInputMode();
         if (onNo) onNo();
-        minimizeUI();
       });
 
       prompt.appendChild(label);

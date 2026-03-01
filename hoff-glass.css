@@ -383,8 +383,8 @@
 }
 
 .hoff-pill:hover .hoff-pill-text {
-  white-space: normal;
   overflow: visible;
+  white-space: normal;
   word-break: break-word;
 }
 
