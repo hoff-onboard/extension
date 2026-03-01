@@ -27,6 +27,7 @@
 
   /** Start a workflow: begin the tour from step 0 */
   function startWorkflow(payload) {
+    HoffUI.setTourActive(true);
     HoffUI.collapsePills();
     HoffTour.start(payload, 0);
   }
@@ -57,6 +58,7 @@
 
     // 3. Wire tour collapse → show continue prompt in chat bar
     HoffTour.onCollapse = (payload, stepIndex, lastUrl) => {
+      HoffUI.setTourActive(false);
       HoffUI.expandPills();
       HoffUI.showContinuePrompt(
         // Yes — resume tour
@@ -78,13 +80,13 @@
         // No — dismiss tour
         () => {
           HoffTour.clearState();
-          HoffUI.hide();
         }
       );
     };
 
     // 4. Wire tour complete → reset input and expand pills
     HoffTour.onComplete = () => {
+      HoffUI.setTourActive(false);
       HoffUI.expandPills();
       HoffUI.resetInput();
     };
@@ -104,6 +106,7 @@
       const el = await HoffTour.waitForElement(targetStep.element, 3000);
       if (el) {
         // Element exists — auto-resume
+        HoffUI.setTourActive(true);
         HoffUI.collapsePills();
         HoffTour.start(payload, stepIndex);
       } else if (lastUrl && lastUrl !== window.location.href) {

@@ -34,6 +34,46 @@
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
+#hoff-logo-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 4px;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+#hoff-logo-btn:hover {
+  transform: scale(1.08);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+[data-hoff-theme="light"] #hoff-logo-btn {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-hoff-theme="light"] #hoff-logo-btn:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+#hoff-logo-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+[data-hoff-theme="light"] #hoff-logo-btn img {
+  filter: invert(1);
+}
+
 #hoff-chat-bar input {
   flex: 1;
   background: transparent;
@@ -154,6 +194,127 @@
   display: none;
 }
 
+#hoff-pills-header {
+  margin-bottom: 10px;
+}
+
+.hoff-pills-title {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.hoff-pills-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+#hoff-select-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.5;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+#hoff-select-btn:hover,
+#hoff-select-btn.active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-hoff-theme="light"] #hoff-select-btn:hover,
+[data-hoff-theme="light"] #hoff-select-btn.active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+#hoff-delete-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#hoff-delete-btn {
+  flex: 1;
+  padding: 5px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s ease;
+}
+
+#hoff-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.35);
+}
+
+#hoff-cancel-select-btn {
+  padding: 5px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+#hoff-cancel-select-btn:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+[data-hoff-theme="light"] #hoff-cancel-select-btn {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.hoff-select-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.hoff-select-circle:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.hoff-select-circle.selected {
+  border-color: #3b82f6;
+  background: #3b82f6;
+}
+
+[data-hoff-theme="light"] .hoff-select-circle {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+[data-hoff-theme="light"] .hoff-select-circle:hover {
+  border-color: rgba(0, 0, 0, 0.5);
+}
+
+.hoff-pills-subtitle {
+  font-size: 11px;
+  opacity: 0.5;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin-top: 2px;
+}
+
 #hoff-pills-container {
   display: flex;
   flex-direction: column;
@@ -224,6 +385,41 @@
   word-break: break-word;
 }
 
+.hoff-pill.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.hoff-pill.loading::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 40%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.35) 60%,
+    transparent 100%
+  );
+  animation: hoffShimmer 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+[data-hoff-theme="light"] .hoff-pill.loading::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 40%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0.6) 60%,
+    transparent 100%
+  );
+}
+
 .hoff-pill .hoff-sparkle {
   font-size: 16px;
   animation: hoffBreathing 2s ease-in-out infinite;
@@ -236,6 +432,63 @@
   font-weight: 700;
   animation: hoffScaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
   flex-shrink: 0;
+}
+
+/* --- Floating Logo Button (minimized state) --- */
+#hoff-floating-btn {
+  position: fixed;
+  bottom: 28px;
+  left: 28px;
+  z-index: 2147483645;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: hoffFadeScale 0.3s ease-out;
+}
+
+#hoff-floating-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.35);
+}
+
+[data-hoff-theme="light"] #hoff-floating-btn {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+#hoff-floating-btn img {
+  width: 26px;
+  height: 26px;
+}
+
+[data-hoff-theme="light"] #hoff-floating-btn img {
+  filter: invert(1);
+}
+
+/* --- Minimized states --- */
+#hoff-chat-bar.hoff-minimized {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#hoff-pills-box.hoff-minimized {
+  opacity: 0;
+  transform: translateX(40px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
 /* --- Driver.js Glass Override --- */
@@ -281,6 +534,11 @@
   50% {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 0 20px 2px rgba(255, 255, 255, 0.15);
   }
+}
+
+@keyframes hoffShimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
 @keyframes hoffFadeScale {

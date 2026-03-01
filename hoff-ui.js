@@ -9,7 +9,12 @@
   let chatBar = null;
   let pillsBox = null;
   let pillsContainer = null;
+  let floatingBtn = null;
   let pills = []; // { id, text, status, workflowPayload }
+  let isMinimized = false;
+  let tourActive = false;
+  let selectMode = false;
+  let selectedIds = new Set();
 
   /** Detect if page background is light or dark */
   function detectTheme() {
@@ -45,6 +50,68 @@
     return container;
   }
 
+  const HOFF_LOGO_URL = "https://hoff.com"; // TODO: set actual URL
+
+  /** Create the logo button element */
+  function createLogoBtn() {
+    const btn = document.createElement("button");
+    btn.id = "hoff-logo-btn";
+    btn.title = "Go to Hoff";
+    const img = document.createElement("img");
+    img.src = chrome.runtime.getURL("icons/icon48.png");
+    img.alt = "Hoff";
+    btn.appendChild(img);
+    btn.addEventListener("click", () => {
+      window.open(HOFF_LOGO_URL, "_blank");
+    });
+    return btn;
+  }
+
+  /** Create the floating logo button (shown when UI is minimized) */
+  function createFloatingBtn() {
+    floatingBtn = document.createElement("button");
+    floatingBtn.id = "hoff-floating-btn";
+    const img = document.createElement("img");
+    img.src = chrome.runtime.getURL("icons/icon48.png");
+    img.alt = "Hoff";
+    floatingBtn.appendChild(img);
+    floatingBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      restoreUI();
+    });
+    floatingBtn.style.display = "none";
+    container.appendChild(floatingBtn);
+  }
+
+  /** Minimize UI to floating button */
+  function minimizeUI() {
+    if (isMinimized) return;
+    isMinimized = true;
+    chatBar.classList.add("hoff-minimized");
+    pillsBox.classList.add("hoff-minimized");
+    floatingBtn.style.display = "flex";
+  }
+
+  /** Restore UI from floating button */
+  function restoreUI() {
+    isMinimized = false;
+    chatBar.classList.remove("hoff-minimized");
+    pillsBox.classList.remove("hoff-minimized");
+    floatingBtn.style.display = "none";
+  }
+
+  /** Set up click-outside listener */
+  function setupClickOutside() {
+    document.addEventListener("click", (e) => {
+      if (tourActive || isMinimized) return;
+      // Don't minimize if clicking inside any Hoff element
+      if (container && container.contains(e.target)) return;
+      // Don't minimize if clicking inside driver.js popover
+      if (e.target.closest && e.target.closest(".driver-popover")) return;
+      minimizeUI();
+    }, true);
+  }
+
   /** Create the chat input bar */
   function createChatBar() {
     chatBar = document.createElement("div");
@@ -58,6 +125,7 @@
   function setInputMode() {
     chatBar.classList.remove("hoff-loading");
     chatBar.innerHTML = "";
+    chatBar.appendChild(createLogoBtn());
     const input = document.createElement("input");
     input.type = "text";
     input.placeholder = "What do you want to do?";
@@ -79,10 +147,79 @@
     pillsBox = document.createElement("div");
     pillsBox.id = "hoff-pills-box";
     pillsBox.className = "hoff-glass";
+
+    const header = document.createElement("div");
+    header.id = "hoff-pills-header";
+
+    const headerTop = document.createElement("div");
+    headerTop.className = "hoff-pills-header-top";
+
+    const titleWrap = document.createElement("div");
+    const title = document.createElement("div");
+    title.className = "hoff-pills-title";
+    title.textContent = "Your flows";
+    const subtitle = document.createElement("div");
+    subtitle.className = "hoff-pills-subtitle";
+    subtitle.textContent = "Workflows we've helped you navigate";
+    titleWrap.appendChild(title);
+    titleWrap.appendChild(subtitle);
+
+    const selectBtn = document.createElement("button");
+    selectBtn.id = "hoff-select-btn";
+    selectBtn.title = "Select flows";
+    selectBtn.innerHTML = "☰";
+    selectBtn.addEventListener("click", () => toggleSelectMode());
+
+    headerTop.appendChild(titleWrap);
+    headerTop.appendChild(selectBtn);
+    header.appendChild(headerTop);
+
+    // Delete bar (hidden by default)
+    const deleteBar = document.createElement("div");
+    deleteBar.id = "hoff-delete-bar";
+    deleteBar.style.display = "none";
+    const deleteBtn = document.createElement("button");
+    deleteBtn.id = "hoff-delete-btn";
+    deleteBtn.textContent = "Delete selected";
+    deleteBtn.addEventListener("click", () => deleteSelected());
+    const cancelBtn = document.createElement("button");
+    cancelBtn.id = "hoff-cancel-select-btn";
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.addEventListener("click", () => toggleSelectMode());
+    deleteBar.appendChild(deleteBtn);
+    deleteBar.appendChild(cancelBtn);
+    header.appendChild(deleteBar);
+
+    pillsBox.appendChild(header);
+
     pillsContainer = document.createElement("div");
     pillsContainer.id = "hoff-pills-container";
     pillsBox.appendChild(pillsContainer);
     container.appendChild(pillsBox);
+  }
+
+  /** Toggle select mode for deleting pills */
+  function toggleSelectMode() {
+    selectMode = !selectMode;
+    selectedIds.clear();
+    const deleteBar = document.getElementById("hoff-delete-bar");
+    const selectBtn = document.getElementById("hoff-select-btn");
+    if (selectMode) {
+      deleteBar.style.display = "flex";
+      selectBtn.classList.add("active");
+    } else {
+      deleteBar.style.display = "none";
+      selectBtn.classList.remove("active");
+    }
+    renderAllPills();
+  }
+
+  /** Delete selected pills */
+  function deleteSelected() {
+    pills = pills.filter((p) => !selectedIds.has(p.id));
+    selectedIds.clear();
+    savePills();
+    toggleSelectMode();
   }
 
   /** Render a single pill DOM element */
@@ -90,6 +227,21 @@
     const el = document.createElement("div");
     el.className = `hoff-pill hoff-glass ${pill.status}`;
     el.dataset.pillId = pill.id;
+
+    if (selectMode) {
+      const circle = document.createElement("span");
+      circle.className = "hoff-select-circle" + (selectedIds.has(pill.id) ? " selected" : "");
+      circle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (selectedIds.has(pill.id)) {
+          selectedIds.delete(pill.id);
+        } else {
+          selectedIds.add(pill.id);
+        }
+        renderAllPills();
+      });
+      el.appendChild(circle);
+    }
 
     const textSpan = document.createElement("span");
     textSpan.className = "hoff-pill-text";
@@ -131,6 +283,8 @@
       createContainer();
       createChatBar();
       createPillsContainer();
+      createFloatingBtn();
+      setupClickOutside();
 
       // Restore saved pills
       const saved = await loadPills();
@@ -163,6 +317,7 @@
       if (loading) {
         chatBar.classList.add("hoff-loading");
         chatBar.innerHTML = "";
+        chatBar.appendChild(createLogoBtn());
         const text = document.createElement("div");
         text.className = "hoff-loading-text";
         text.textContent = "Working on it...";
@@ -176,6 +331,7 @@
     showContinuePrompt(onYes, onNo) {
       chatBar.classList.remove("hoff-loading");
       chatBar.innerHTML = "";
+      chatBar.appendChild(createLogoBtn());
       const prompt = document.createElement("div");
       prompt.className = "hoff-continue-prompt";
 
@@ -196,6 +352,7 @@
       noBtn.addEventListener("click", () => {
         setInputMode();
         if (onNo) onNo();
+        minimizeUI();
       });
 
       prompt.appendChild(label);
@@ -242,6 +399,11 @@
       return pills;
     },
 
+    /** Mark tour as active/inactive (prevents click-outside minimize) */
+    setTourActive(active) {
+      tourActive = active;
+    },
+
     /** Collapse pills box (during active tour) */
     collapsePills() {
       if (pillsBox) pillsBox.classList.add("hoff-collapsed");
@@ -261,6 +423,7 @@
     /** Show all Hoff UI */
     show() {
       if (container) container.style.display = "";
+      restoreUI();
       chrome.storage.local.remove("hoff_hidden");
     },
   };
