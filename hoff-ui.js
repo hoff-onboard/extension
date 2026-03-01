@@ -90,6 +90,7 @@
     chatBar.classList.add("hoff-minimized");
     pillsBox.classList.add("hoff-minimized");
     floatingBtn.style.display = "flex";
+    chrome.storage.local.set({ hoff_minimized: true });
   }
 
   /** Restore UI from floating button */
@@ -98,6 +99,7 @@
     chatBar.classList.remove("hoff-minimized");
     pillsBox.classList.remove("hoff-minimized");
     floatingBtn.style.display = "none";
+    chrome.storage.local.remove("hoff_minimized");
   }
 
   /** Set up click-outside listener */
@@ -296,6 +298,15 @@
       // Check if UI was hidden
       const { hoff_hidden } = await chrome.storage.local.get("hoff_hidden");
       if (hoff_hidden) container.style.display = "none";
+
+      // Check if UI was minimized
+      const { hoff_minimized } = await chrome.storage.local.get("hoff_minimized");
+      if (hoff_minimized) {
+        isMinimized = true;
+        chatBar.classList.add("hoff-minimized");
+        pillsBox.classList.add("hoff-minimized");
+        floatingBtn.style.display = "flex";
+      }
 
       // Listen for toggle message from background script (icon click)
       chrome.runtime.onMessage.addListener((msg) => {
