@@ -1,40 +1,20 @@
-// Mock payload — swap this for a real API call later
-const HOFF_MOCK_PAYLOAD = {
-  url: "https://github.com",
-  brand: {
-    primary: "#238636",
-    background: "#0D1117",
-    text: "#F0F6FC",
-    fontFamily:
-      "-apple-system, BlinkMacSystemFont, Segoe UI, Noto Sans, Helvetica, Arial, sans-serif",
-    borderRadius: "6px",
-  },
-  workflow: {
-    name: "Create a New Repository",
-    description:
-      "Learn how to create a new repository to host your project.",
-    steps: [
-      {
-        element: "a[href='/new']",
-        title: "Step 1: Click New",
-        description:
-          "Find the 'New' button in your sidebar and click it to start creating a repository.",
-        side: "right",
-      },
-      {
-        element: "a[href='/notifications']",
-        title: "Step 2: Notifications",
-        description:
-          "After creating your repo, you'll get notifications about activity here.",
-        side: "bottom",
-      },
-      {
-        element: "qbsearch-input",
-        title: "Step 3: Find Your Repo",
-        description:
-          "Use search to quickly find your newly created repository anytime.",
-        side: "bottom",
-      },
-    ],
-  },
-};
+// Hoff — Mock Backend
+// Returns a random workflow from test-flows/ after a 3s delay
+
+function hoffMockBackend(query) {
+  return new Promise((resolve) => {
+    setTimeout(async () => {
+      try {
+        const indexUrl = chrome.runtime.getURL("test-flows/index.json");
+        const index = await (await fetch(indexUrl)).json();
+        const pick = index[Math.floor(Math.random() * index.length)];
+        const payloadUrl = chrome.runtime.getURL(`test-flows/${pick}`);
+        const payload = await (await fetch(payloadUrl)).json();
+        resolve(payload);
+      } catch (e) {
+        console.warn("Hoff mock backend error:", e);
+        resolve(null);
+      }
+    }, 3000);
+  });
+}

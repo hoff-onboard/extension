@@ -1,0 +1,295 @@
+/* ==========================================================
+   Hoff — Liquid Glass / Glassmorphism Styles
+   ========================================================== */
+
+/* --- Base Glass --- */
+.hoff-glass {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  color: #fff;
+}
+
+[data-hoff-theme="light"] .hoff-glass {
+  background: rgba(0, 0, 0, 0.12);
+  color: #111;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Chat Input Bar --- */
+#hoff-chat-bar {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  z-index: 2147483645;
+  border-radius: 24px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+#hoff-chat-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: inherit;
+  font-size: 15px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  padding: 10px 16px;
+  caret-color: rgba(255, 255, 255, 0.7);
+}
+
+[data-hoff-theme="light"] #hoff-chat-bar input {
+  caret-color: rgba(0, 0, 0, 0.7);
+}
+
+#hoff-chat-bar input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+[data-hoff-theme="light"] #hoff-chat-bar input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* Loading state */
+#hoff-chat-bar.hoff-loading {
+  animation: hoffGlow 2s ease-in-out infinite;
+}
+
+#hoff-chat-bar .hoff-loading-text {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  opacity: 0.7;
+  animation: hoffBreathing 2s ease-in-out infinite;
+}
+
+/* Continue prompt */
+#hoff-chat-bar .hoff-continue-prompt {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#hoff-chat-bar .hoff-continue-prompt span {
+  opacity: 0.85;
+}
+
+#hoff-chat-bar .hoff-continue-btn {
+  padding: 6px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+  font-family: inherit;
+}
+
+#hoff-chat-bar .hoff-continue-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.03);
+}
+
+[data-hoff-theme="light"] #hoff-chat-bar .hoff-continue-btn {
+  border-color: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-hoff-theme="light"] #hoff-chat-bar .hoff-continue-btn:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+#hoff-chat-bar .hoff-continue-btn.hoff-yes {
+  background: rgba(34, 197, 94, 0.25);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+#hoff-chat-bar .hoff-continue-btn.hoff-yes:hover {
+  background: rgba(34, 197, 94, 0.4);
+}
+
+#hoff-chat-bar .hoff-continue-btn.hoff-no {
+  opacity: 0.6;
+}
+
+#hoff-chat-bar .hoff-continue-btn.hoff-no:hover {
+  opacity: 1;
+}
+
+/* --- Query Pills Box --- */
+#hoff-pills-box {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2147483644;
+  width: 300px;
+  border-radius: 18px;
+  padding: 12px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#hoff-pills-box.hoff-collapsed {
+  opacity: 0;
+  transform: translateX(40px);
+  pointer-events: none;
+}
+
+#hoff-pills-box:empty {
+  display: none;
+}
+
+#hoff-pills-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  max-height: 280px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+#hoff-pills-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+#hoff-pills-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#hoff-pills-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+[data-hoff-theme="light"] #hoff-pills-container {
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+[data-hoff-theme="light"] #hoff-pills-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.hoff-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 500;
+  cursor: default;
+  animation: hoffSlideIn 0.3s ease-out both;
+  flex-shrink: 0;
+}
+
+.hoff-pill.complete {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hoff-pill.complete:hover {
+  transform: scale(1.03);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.3);
+}
+
+.hoff-pill .hoff-pill-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+
+.hoff-pill:hover .hoff-pill-text {
+  white-space: normal;
+  overflow: visible;
+  word-break: break-word;
+}
+
+.hoff-pill .hoff-sparkle {
+  font-size: 16px;
+  animation: hoffBreathing 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.hoff-pill .hoff-check {
+  color: #22c55e;
+  font-size: 16px;
+  font-weight: 700;
+  animation: hoffScaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  flex-shrink: 0;
+}
+
+/* --- Driver.js Glass Override --- */
+.driver-popover.hoff-theme {
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* --- Keyframe Animations --- */
+@keyframes hoffSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes hoffBreathing {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes hoffScaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes hoffGlow {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 0 20px 2px rgba(255, 255, 255, 0.15);
+  }
+}
+
+@keyframes hoffFadeScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

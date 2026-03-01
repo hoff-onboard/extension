@@ -1,11 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Hoff",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Hands-off onboarding — guided tours that match your site's brand.",
   "permissions": ["activeTab", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
-    "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -26,8 +28,14 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "css": ["lib/driver.css"],
-      "js": ["lib/driver.iife.js", "content.js"],
+      "css": ["lib/driver.css", "hoff-glass.css"],
+      "js": [
+        "lib/driver.iife.js",
+        "mock-payload.js",
+        "hoff-ui.js",
+        "hoff-tour.js",
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
   ]
