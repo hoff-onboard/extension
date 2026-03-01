@@ -1,0 +1,36 @@
+{
+  "url": "https://github.com/",
+  "brand": {
+    "primary": "#1F883D",
+    "background": "#0D1117",
+    "text": "#F0F6FC",
+    "fontFamily": "-apple-system, system-ui, Segoe UI, Noto Sans, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji",
+    "borderRadius": "6px"
+  },
+  "workflow": {
+    "name": "Automate any workflow",
+    "description": "Set up CI/CD and automate your development tasks with GitHub Actions.",
+    "steps": [
+      {
+        "element": "button.NavDropdown-module__button__PEHWX",
+        "title": "Open Platform menu",
+        "description": "Click on the Platform menu to discover automation tools like GitHub Actions.",
+        "side": "bottom"
+      },
+      {
+        "element": "a[href=\"https://github.com/features/actions\"]",
+        "preClick": "button.NavDropdown-module__button__PEHWX",
+        "title": "Select GitHub Actions",
+        "description": "Click on Actions in the Platform menu to explore automation and CI/CD features.",
+        "side": "bottom",
+        "navigates": true
+      },
+      {
+        "element": "a[href=\"https://docs.github.com/actions\"]",
+        "title": "Get started with Actions",
+        "description": "Click 'Get started with actions' to learn how to set up your first CI/CD pipeline.",
+        "side": "top"
+      }
+    ]
+  }
+}

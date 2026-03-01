@@ -1,0 +1,34 @@
+{
+  "url": "https://github.com",
+  "brand": {
+    "primary": "#238636",
+    "background": "#0D1117",
+    "text": "#F0F6FC",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, Segoe UI, Noto Sans, Helvetica, Arial, sans-serif",
+    "borderRadius": "6px"
+  },
+  "workflow": {
+    "name": "Create a New Repository",
+    "description": "Learn how to create a new repository to host your project.",
+    "steps": [
+      {
+        "element": "a[href='/new']",
+        "title": "Step 1: Click New",
+        "description": "Find the 'New' button in your sidebar and click it to start creating a repository.",
+        "side": "right"
+      },
+      {
+        "element": "a[href='/notifications']",
+        "title": "Step 2: Notifications",
+        "description": "After creating your repo, you'll get notifications about activity here.",
+        "side": "bottom"
+      },
+      {
+        "element": "qbsearch-input",
+        "title": "Step 3: Find Your Repo",
+        "description": "Use search to quickly find your newly created repository anytime.",
+        "side": "bottom"
+      }
+    ]
+  }
+}
