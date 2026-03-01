@@ -234,7 +234,7 @@
 /* --- Query Pills Box --- */
 #hoff-pills-box {
   position: fixed;
-  top: 20px;
+  bottom: 28px;
   right: 20px;
   z-index: 2147483644;
   width: 300px;
