@@ -50,7 +50,7 @@
     return container;
   }
 
-  const HOFF_LOGO_URL = "https://hoff.com"; // TODO: set actual URL
+  const HOFF_LOGO_URL = "http://localhost:5173/?url=" + encodeURIComponent(window.location.hostname);
 
   /** Create the logo button element */
   function createLogoBtn() {
@@ -290,14 +290,21 @@
   function deleteSelected() {
     const domain = window.location.hostname;
     const toDelete = pills.filter((p) => selectedIds.has(p.id));
+    const deletedNames = toDelete.map((p) => p.workflowPayload?.workflow?.name || p.text);
 
     // Soft-delete each workflow in the backend (fire-and-forget)
-    for (const pill of toDelete) {
-      const name = pill.workflowPayload?.workflow?.name || pill.text;
+    for (const name of deletedNames) {
       fetch(`http://localhost:8000/workflows/${encodeURIComponent(domain)}/${encodeURIComponent(name)}`, {
         method: "DELETE",
       }).catch(() => {});
     }
+
+    // Track deleted names locally so they don't reappear on refresh before backend processes
+    const deletedKey = "hoff_deleted_" + domain;
+    chrome.storage.local.get(deletedKey, (result) => {
+      const existing = result[deletedKey] || [];
+      chrome.storage.local.set({ [deletedKey]: [...existing, ...deletedNames] });
+    });
 
     pills = pills.filter((p) => !selectedIds.has(p.id));
     selectedIds.clear();
