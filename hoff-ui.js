@@ -146,6 +146,47 @@
     chatBar.appendChild(input);
   }
 
+  /** Make the pills box draggable by its header */
+  function makeDraggable() {
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const header = pillsBox.querySelector("#hoff-pills-header");
+    if (!header) return;
+
+    header.addEventListener("mousedown", (e) => {
+      if (e.target.closest("button")) return;
+      isDragging = true;
+      const rect = pillsBox.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      pillsBox.classList.add("hoff-dragging");
+      e.preventDefault();
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      let newLeft = e.clientX - offsetX;
+      let newTop = e.clientY - offsetY;
+
+      const maxLeft = window.innerWidth - pillsBox.offsetWidth;
+      const maxTop = window.innerHeight - pillsBox.offsetHeight;
+      newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+      newTop = Math.max(0, Math.min(newTop, maxTop));
+
+      pillsBox.style.left = newLeft + "px";
+      pillsBox.style.top = newTop + "px";
+      pillsBox.style.right = "auto";
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (!isDragging) return;
+      isDragging = false;
+      pillsBox.classList.remove("hoff-dragging");
+    });
+  }
+
   /** Create the pills box (glass container) and inner scrollable list */
   function createPillsContainer() {
     pillsBox = document.createElement("div");
@@ -287,6 +328,7 @@
       createContainer();
       createChatBar();
       createPillsContainer();
+      makeDraggable();
       createFloatingBtn();
       setupClickOutside();
 
@@ -425,6 +467,16 @@
     /** Expand pills box */
     expandPills() {
       if (pillsBox) pillsBox.classList.remove("hoff-collapsed");
+    },
+
+    /** Collapse chat bar (during active tour) */
+    collapseChatBar() {
+      if (chatBar) chatBar.classList.add("hoff-collapsed");
+    },
+
+    /** Expand chat bar */
+    expandChatBar() {
+      if (chatBar) chatBar.classList.remove("hoff-collapsed");
     },
 
     /** Hide all Hoff UI */

@@ -135,10 +135,19 @@
   function findElement(step) {
     if (step.text) {
       return [...document.querySelectorAll(step.element)].find(
-        (el) => el.textContent.trim() === step.text
+        (el) => el.textContent.trim().includes(step.text)
       ) || null;
     }
     return document.querySelector(step.element);
+  }
+
+  /** Dispatch a full mousedown→mouseup→click sequence (needed for React/Radix) */
+  function simulateClick(el) {
+    el.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, cancelable: true }));
+    el.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+    el.dispatchEvent(new MouseEvent("pointerup", { bubbles: true, cancelable: true }));
+    el.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true }));
+    el.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
   }
 
   /** Wait for an element to appear in the DOM. */
@@ -238,14 +247,23 @@
               } else {
                 highlightedEl.click();
               }
+            } else if (isLastStep) {
+              isNavigating = true;
+              if (activeDriverObj) activeDriverObj.destroy();
+              clearTourState();
+              if (window.HoffTour.onComplete) window.HoffTour.onComplete();
             } else {
-              if (isLastStep) {
-                isNavigating = true; // prevent collapse on final destroy
-                if (activeDriverObj) activeDriverObj.destroy();
-                clearTourState();
-                if (window.HoffTour.onComplete) window.HoffTour.onComplete();
-              } else {
-                if (activeDriverObj) activeDriverObj.moveNext();
+              // Destroy overlay so user can interact with the real element
+              isNavigating = true;
+              if (activeDriverObj) activeDriverObj.destroy();
+              // The user's click already went through — wait for next element then resume
+              const nextStep = rawSteps[i + 1];
+              if (nextStep) {
+                const nextEl = await waitForElement(nextStep, 5000);
+                if (nextEl) {
+                  isNavigating = false;
+                  window.HoffTour.start(payload, i + 1);
+                }
               }
             }
           };
@@ -253,17 +271,18 @@
         }
       };
 
-      // For navigates steps, also handle the "Next" button
-      if (s.navigates) {
-        step.popover.onNextClick = async (el) => {
-          const isLastStep = i === rawSteps.length - 1;
+      // Handle the "Next" button
+      step.popover.onNextClick = async () => {
+        const isLastStep = i === rawSteps.length - 1;
+        const target = findElement(s);
+
+        if (s.navigates) {
           isNavigating = true;
           if (!isLastStep) {
             await saveTourState(payload, i + 1, null);
           } else {
             clearTourState();
           }
-          const target = el || findElement(s);
           if (activeDriverObj) activeDriverObj.destroy();
           if (target) {
             if (target.tagName === "A" && target.href) {
@@ -272,8 +291,27 @@
               target.click();
             }
           }
-        };
-      }
+        } else if (isLastStep) {
+          isNavigating = true;
+          if (activeDriverObj) activeDriverObj.destroy();
+          clearTourState();
+          if (window.HoffTour.onComplete) window.HoffTour.onComplete();
+        } else {
+          // Destroy overlay so user can click the real element
+          isNavigating = true;
+          if (activeDriverObj) activeDriverObj.destroy();
+
+          // Show a "click the element to continue" hint and wait for next step's element
+          const nextStep = rawSteps[i + 1];
+          if (nextStep) {
+            const nextEl = await waitForElement(nextStep, 10000);
+            if (nextEl) {
+              isNavigating = false;
+              window.HoffTour.start(payload, i + 1);
+            }
+          }
+        }
+      };
 
       return step;
     });

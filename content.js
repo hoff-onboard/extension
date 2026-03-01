@@ -29,6 +29,7 @@
   function startWorkflow(payload) {
     HoffUI.setTourActive(true);
     HoffUI.collapsePills();
+    HoffUI.collapseChatBar();
     HoffTour.start(payload, 0);
   }
 
@@ -60,10 +61,12 @@
     HoffTour.onCollapse = (payload, stepIndex, lastUrl) => {
       HoffUI.setTourActive(false);
       HoffUI.expandPills();
+      HoffUI.expandChatBar();
       HoffUI.showContinuePrompt(
         // Yes — resume tour
         async () => {
           HoffUI.collapsePills();
+          HoffUI.collapseChatBar();
           const targetStep = payload.workflow.steps[stepIndex];
           if (targetStep) {
             if (lastUrl && lastUrl !== window.location.href) {
@@ -88,6 +91,7 @@
     HoffTour.onComplete = () => {
       HoffUI.setTourActive(false);
       HoffUI.expandPills();
+      HoffUI.expandChatBar();
       HoffUI.resetInput();
     };
 
@@ -105,9 +109,9 @@
       // Try to find the element on this page
       const el = await HoffTour.waitForElement(targetStep, 3000);
       if (el) {
-        // Element exists — auto-resume
         HoffUI.setTourActive(true);
         HoffUI.collapsePills();
+        HoffUI.collapseChatBar();
         HoffTour.start(payload, stepIndex);
       } else if (lastUrl && lastUrl !== window.location.href) {
         // Different page — show continue prompt

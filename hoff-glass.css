@@ -190,6 +190,27 @@
   pointer-events: none;
 }
 
+/* --- Draggable state --- */
+#hoff-pills-header {
+  cursor: grab;
+}
+
+#hoff-pills-box.hoff-dragging {
+  transition: none;
+  user-select: none;
+}
+
+#hoff-pills-box.hoff-dragging #hoff-pills-header {
+  cursor: grabbing;
+}
+
+/* --- Chat bar collapsed (during tour) --- */
+#hoff-chat-bar.hoff-collapsed {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+  pointer-events: none;
+}
+
 #hoff-pills-box:empty {
   display: none;
 }
