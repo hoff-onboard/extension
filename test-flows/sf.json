@@ -1,0 +1,73 @@
+{
+    "url": "https://platform-data-4074.lightning.force.com/",
+    "brand": {
+      "primary": "#FFFFFF",
+      "background": "#000000",
+      "text": "#03234D",
+      "fontFamily": "system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+      "borderRadius": "4px"
+    },
+    "workflow":
+      {
+        "name": "How do I convert a lead into an opportunity and assign it to a team member?",
+        "description": "This workflow guides a user through converting a lead into an opportunity and assigning it to a team member using the Salesforce Lightning platform. The process involves navigating to the Leads list, selecting the appropriate lead, initiating the conversion process, filling out necessary opportunity details, and assigning the new opportunity to a team member.",
+        "steps": [
+          {
+            "element": "[aria-label=\"Buscar\"]",
+            "title": "Open Search",
+            "description": "Click the search bar to find Leads.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "div.slds-text-link--reset",
+            "title": "Select Leads",
+            "description": "Select 'Candidatos' from the search results to go to the Leads home page.",
+            "side": "bottom",
+            "navigates": true
+          },
+          {
+            "element": "a[href=\"/lightning/r/00QWV000009uxGM2AY/view\"]",
+            "title": "Select Lead",
+            "description": "Click on the lead's name to open the lead record.",
+            "side": "bottom",
+            "navigates": true
+          },
+          {
+            "element": "button.slds-button",
+            "title": "Initiate Conversion",
+            "description": "Click the 'Convertir' button to start the lead conversion process.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "#combobox-button-746",
+            "title": "Set Converted Status",
+            "description": "Ensure the 'Estado convertido' is set to the desired value, such as 'Cualificado'.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "#checkbox-743",
+            "title": "Create Opportunity Checkbox",
+            "description": "Ensure the 'No crear una oportunidad tras la conversión' checkbox is unchecked to create a new opportunity.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "a[href=\"javascript:void(0);\"]",
+            "title": "Assign to Team Member",
+            "description": "Click the 'X' to remove the current owner or search for a team member in the 'Propietario de registro' field.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "button.slds-button",
+            "title": "Finalize Conversion",
+            "description": "Click the 'Convertir' button at the bottom of the modal to complete the process.",
+            "side": "top",
+            "navigates": true
+          }
+        ]
+      }
+  }

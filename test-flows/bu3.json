@@ -1,0 +1,81 @@
+{
+    "url": "https://cloud.browser-use.com/",
+    "brand": {
+      "primary": "",
+      "background": "#FFFFFF",
+      "text": "#0C0A09",
+      "fontFamily": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+      "borderRadius": "0px"
+    },
+    "workflow":
+      {
+        "name": "How can I schedule an agent to run every day and also configure it to receive a name in metadata?",
+        "description": "Schedule a daily agent run and add metadata with a name in Browser Use Cloud",
+        "steps": [
+          {
+            "element": "[aria-label=\"Scheduled Jobs\"]",
+            "title": "Navigate to Scheduled Jobs",
+            "description": "Click on Scheduled Jobs in the sidebar to manage your agent schedules.",
+            "side": "bottom",
+            "navigates": true,
+            "dynamic": false
+          },
+          {
+            "element": "button.bg-primary",
+            "title": "Open Schedule Agent Dialog",
+            "description": "Click the Schedule Agent button to start configuring a new scheduled job.",
+            "side": "bottom",
+            "navigates": true,
+            "dynamic": false
+          },
+          {
+            "element": "#agent-task",
+            "title": "Enter Task Description",
+            "description": "Describe the task you want the agent to perform regularly.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "button[role=\"combobox\"]",
+            "title": "Select Schedule Frequency",
+            "description": "Open the schedule dropdown to choose how often the agent should run.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "div.hover\\:bg-accent\\/50",
+            "title": "Set Daily Schedule",
+            "description": "Select the daily frequency option from the dropdown menu.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "button.text-muted-foreground",
+            "title": "Expand Advanced Options",
+            "description": "Click on Advanced Options to reveal additional settings like metadata.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "textarea.bg-background",
+            "title": "Configure Agent Metadata",
+            "description": "Enter the metadata for the agent",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": true
+          },
+          {
+            "element": "button.bg-primary",
+            "title": "Create Scheduled Job",
+            "description": "Click the Create Scheduled Job button to save your new daily schedule and metadata configuration.",
+            "side": "bottom",
+            "navigates": true,
+            "dynamic": false
+          }
+        ]
+      }
+  }

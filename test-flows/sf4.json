@@ -1,0 +1,80 @@
+{
+    "url": "https://platform-data-4074.lightning.force.com",
+    "brand": {
+      "primary": "#1F883D",
+      "background": "#0D1117",
+      "text": "#F0F6FC",
+      "fontFamily": "-apple-system, system-ui, Segoe UI, Noto Sans, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji",
+      "borderRadius": "6px"
+    },
+    "workflow": 
+    {
+      "name": "How do I convert a lead into an opportunity and assign it to a team member?",
+      "description": "This workflow guides you through the process of converting a lead into an opportunity in Salesforce Lightning and assigning it to a team member. The process involves navigating to the Leads section, selecting the desired lead, initiating the conversion process, filling in the necessary opportunity details, and assigning the opportunity to a team member.",
+      "steps": [
+        {
+          "element": "a[href=\"/lightning/o/Lead/home\"]",
+          "title": "Click Leads Tab",
+          "description": "Click the 'Leads' tab in the main navigation bar.",
+          "side": "bottom",
+          "navigates": true
+        },
+        {
+          "element": "a[title=\"Jean Dow\"]",
+          "title": "Select Lead",
+          "description": "In the 'Recent Leads' list, click on the name of the lead you want to convert.",
+          "side": "bottom",
+          "navigates": true
+        },
+        {
+          "element": "button[name=\"Convert\"]",
+          "title": "Click Convert Button",
+          "description": "On the lead's detail page, click the 'Convert' button located in the top right corner.",
+          "side": "bottom",
+          "navigates": false
+        },
+        {
+          "element": "#combobox-button-487",
+          "title": "Set Converted Status",
+          "description": "In the 'Convert Lead' dialog, ensure the 'Converted Status' dropdown is set to the appropriate status.",
+          "side": "bottom",
+          "navigates": false
+        },
+        {
+          "element": "#checkbox-484",
+          "title": "Check Create Opportunity",
+          "description": "Ensure the 'Don't create an opportunity upon conversion' checkbox is unchecked to create an opportunity.",
+          "side": "bottom",
+          "navigates": false
+        },
+        {
+          "element": "button[title=\"Browser Use-\"]",
+          "title": "Opportunity Name",
+          "description": "Click on the opportunity name button to edit or confirm the name for the new opportunity.",
+          "side": "bottom",
+          "navigates": false
+        },
+        {
+          "element": "div.uiPillContainer--default",
+          "title": "Assign Record Owner",
+          "description": "In the 'Record Owner' field, select the team member who will own the new records.",
+          "side": "bottom",
+          "navigates": false
+        },
+        {
+          "element": "button.slds-button",
+          "title": "Finalize Conversion",
+          "description": "Click the 'Convert' button to finalize the lead conversion and create the opportunity.",
+          "side": "top",
+          "navigates": false
+        },
+        {
+          "element": "span.slds-page-header__title",
+          "title": "Conversion Confirmation",
+          "description": "A confirmation message will appear indicating the lead has been converted and the opportunity created.",
+          "side": "bottom",
+          "navigates": false
+        }
+      ]
+    }
+  }

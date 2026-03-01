@@ -1,0 +1,96 @@
+{
+    "url": "https://cloud.browser-use.com/",
+    "brand": {
+      "primary": "#1F883D",
+      "background": "#0D1117",
+      "text": "#F0F6FC",
+      "fontFamily": "-apple-system, system-ui, Segoe UI, Noto Sans, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji",
+      "borderRadius": "6px"
+    },
+    "workflow":{
+        "name": "How can I schedule an agent to run every day and also configure it to receive a name in metadata?",
+        "description": "Schedule an agent to run daily and configure metadata with a name in Browser Use Cloud.",
+        "steps": [
+          {
+            "element": "button.justify-center",
+            "title": "Access Dashboard",
+            "description": "Click the BU Max button to access the main dashboard.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "[aria-label=\"Scheduled Jobs\"]",
+            "title": "Open Scheduled Jobs",
+            "description": "Click on Scheduled Jobs in the sidebar to manage and create scheduled agent runs.",
+            "side": "right",
+            "navigates": true,
+            "dynamic": false
+          },
+          {
+            "element": "button.inline-flex",
+            "title": "Schedule Agent",
+            "description": "Click the Schedule Agent button to start configuring a new scheduled agent.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "#agent-name",
+            "title": "Enter Agent Name",
+            "description": "In the Name field, enter a name for your scheduled agent.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "button.flex",
+            "title": "Select Schedule Frequency",
+            "description": "Click the schedule dropdown to select how often the agent should run.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "div.relative",
+            "title": "Select Daily Schedule",
+            "description": "Select 'Every day at midnight (UTC)' from the list to set a daily schedule.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "button.flex",
+            "title": "Expand Advanced Options",
+            "description": "Click on Advanced Options to reveal additional settings like metadata.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "textarea.flex",
+            "title": "Enter Metadata",
+            "description": "In the Metadata (JSON) field, enter the desired metadata in JSON format.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "#agent-task",
+            "title": "Enter Task Description",
+            "description": "Enter a description of the task you want the agent to perform.",
+            "side": "bottom",
+            "navigates": false,
+            "dynamic": false
+          },
+          {
+            "element": "button.inline-flex",
+            "title": "Create Scheduled Job",
+            "description": "Click the 'Create Scheduled Job' button to save and finalize your scheduled agent setup.",
+            "side": "bottom",
+            "navigates": true,
+            "dynamic": false
+          }
+        ]
+      }
+  }

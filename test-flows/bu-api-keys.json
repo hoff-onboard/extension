@@ -1,0 +1,80 @@
+{
+    "url": "https://cloud.browser-use.com",
+    "brand": {
+    "primary": "#238636",
+    "background": "#FFFFFF",
+    "text": "#0C0A09",
+    "fontFamily": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+    "borderRadius": "0px"
+    },
+    "workflow": {
+        "name": "Configure API Access and Integrations",
+        "description": "Generate API keys and connect third-party integrations to extend the agent's functionality and enable programmatic access.",
+        "steps": [
+          {
+            "element": "[aria-label=\"Settings\"]",
+            "title": "Navigate to Settings",
+            "description": "Click on the Settings link in the sidebar to access API and integration configuration.",
+            "side": "right",
+            "navigates": true
+          },
+          {
+            "element": "button.relative",
+            "title": "Access API Keys",
+            "description": "Select the API Keys option in the settings menu to manage your project's programmatic access.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "button.inline-flex",
+            "title": "Create API Key",
+            "description": "Click the 'Create API Key' button to generate a new programmatic access token.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "button[type=\"submit\"]",
+            "title": "Confirm API Key Creation",
+            "description": "Click the 'Create' button to finalize and generate the new API key.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "button.inline-flex",
+            "title": "Close Success Modal",
+            "description": "Click the 'Close' button to return to the API Keys management page.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "button.relative",
+            "title": "Navigate to Secrets",
+            "description": "Click on the Secrets tab to manage third-party integration credentials and environment variables.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "button.inline-flex",
+            "title": "Create Integration",
+            "description": "Click the 'Create Integration' button to start connecting a third-party service like 1Password.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "input[name=\"op_token\"]",
+            "title": "Enter Integration Token",
+            "description": "Enter your 1Password service account token to authorize the integration.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "button[type=\"submit\"]",
+            "title": "Finalize Integration",
+            "description": "Click the 'Create Integration' button to complete the setup.",
+            "side": "bottom",
+            "navigates": false
+          }
+        ]
+      }
+  }
+  

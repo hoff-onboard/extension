@@ -1,0 +1,59 @@
+{
+    "url": "https://platform-data-4074.lightning.force.com/",
+    "brand": {
+      "primary": "#FFFFFF",
+      "background": "#000000",
+      "text": "#03234D",
+      "fontFamily": "system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+      "borderRadius": "4px"
+    },
+    "workflow":
+      {
+        "name": "How do I convert a lead into an opportunity and assign it to a team member?",
+        "description": "This workflow involves navigating to the Leads list, selecting the specific lead to convert, initiating the conversion process, filling out the required opportunity details, and assigning the new opportunity to a team member. The process leverages Salesforce Lightning's interface for converting leads and managing opportunities.",
+        "steps": [
+          {
+            "element": "a[href=\"/lightning/r/00QWV000009uxGM2AY/view\"]",
+            "title": "Select Lead",
+            "description": "Click on the lead's name to open the lead record.",
+            "side": "bottom",
+            "navigates": true
+          },
+          {
+            "element": "button.slds-button",
+            "title": "Click Convert",
+            "description": "Click the 'Convert' button in the lead record's action bar to start the conversion process.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "button.slds-button",
+            "title": "Opportunity Name",
+            "description": "Verify or update the name for the new opportunity in the conversion modal.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "a[href=\"javascript:void(0);\"]",
+            "title": "Assign Owner",
+            "description": "Click the remove icon to clear the current owner and select a new team member if needed.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "button.slds-button",
+            "title": "Finalize Conversion",
+            "description": "Click the 'Convert' button at the bottom of the modal to complete the process.",
+            "side": "bottom",
+            "navigates": true
+          },
+          {
+            "element": "a[href=\"/lightning/r/006WV000009rltFYAQ/view\"]",
+            "title": "View Opportunity",
+            "description": "Click on the new opportunity name to view the record and verify the details.",
+            "side": "bottom",
+            "navigates": true
+          }
+        ]
+      }
+  }
