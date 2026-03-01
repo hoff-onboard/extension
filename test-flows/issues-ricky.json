@@ -12,21 +12,21 @@
         "description": "Track bugs, suggest enhancements, or manage tasks within a repository to keep development organized and transparent.",
         "steps": [
           {
-            "element": "a[href=\"/ramcav/dash\"]",
+            "element": "a[href='/mongodb-industry-solutions/kozen-engine']",
             "title": "Select Repository",
             "description": "Select a repository from your list to open a new issue in.",
             "side": "right",
             "navigates": true
           },
           {
-            "element": "a[href=\"/ramcav/dash/issues\"]",
+            "element": "a[href='/mongodb-industry-solutions/kozen-engine/issues']",
             "title": "Go to Issues",
             "description": "Click on the 'Issues' tab to view existing issues and create new ones.",
             "side": "bottom",
             "navigates": true
           },
           {
-            "element": "a[href=\"/ramcav/dash/issues/new/choose\"]",
+            "element": "a[href='/mongodb-industry-solutions/kozen-engine/issues/new/choose']",
             "title": "Click New Issue",
             "description": "Click the 'New issue' button to start creating a new issue.",
             "side": "bottom",

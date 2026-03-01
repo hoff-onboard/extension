@@ -1,0 +1,59 @@
+{
+    "url": "https://github.com/",
+    "brand": {
+      "primary": "#1F883D",
+      "background": "#0D1117",
+      "text": "#F0F6FC",
+      "fontFamily": "-apple-system, system-ui, Segoe UI, Noto Sans, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji",
+      "borderRadius": "6px"
+    },
+    "workflow": {
+        "name": "Open a new issue",
+        "description": "Track bugs, suggest enhancements, or manage tasks within a repository to keep development organized and transparent.",
+        "steps": [
+          {
+            "element": "a[href='/mongodb-industry-solutions/kozen-engine']",
+            "title": "Select Repository",
+            "description": "Select a repository from your list to open a new issue in.",
+            "side": "right",
+            "navigates": true
+          },
+          {
+            "element": "a[href='/mongodb-industry-solutions/kozen-engine/issues']",
+            "title": "Go to Issues",
+            "description": "Click on the 'Issues' tab to view existing issues and create new ones.",
+            "side": "bottom",
+            "navigates": true
+          },
+          {
+            "element": "a[href='/mongodb-industry-solutions/kozen-engine/issues/new/choose']",
+            "title": "Click New Issue",
+            "description": "Click the 'New issue' button to start creating a new issue.",
+            "side": "bottom",
+            "navigates": true
+          },
+          {
+            "element": "[aria-label=\"Add a title\"]",
+            "title": "Add a title",
+            "description": "Enter a descriptive title for your issue.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "[aria-label=\"Markdown value\"]",
+            "title": "Add a description",
+            "description": "Provide more details about the issue in the description field.",
+            "side": "bottom",
+            "navigates": false
+          },
+          {
+            "element": "[data-testid=\"create-issue-button\"]",
+            "title": "Submit Issue",
+            "description": "Click the 'Create' button to submit your new issue.",
+            "side": "top",
+            "navigates": true
+          }
+        ]
+    }
+  }
+  

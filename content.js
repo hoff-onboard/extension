@@ -157,14 +157,20 @@
         };
       }
 
-      // If this step navigates to a new page, auto-click and continue on the next page
+      // If this step navigates to a new page, save state and click on "Next"
       if (s.navigates) {
-        step.onHighlighted = () => {
+        step.popover.onNextClick = (el) => {
           saveTourState(payload, i + 1);
-          setTimeout(() => {
-            const target = document.querySelector(s.element);
-            if (target) target.click();
-          }, 800);
+          // Use the element driver.js already resolved, fall back to querySelector
+          const target = el || document.querySelector(s.element);
+          if (target) {
+            // For links, navigate directly in case click() is blocked
+            if (target.tagName === "A" && target.href) {
+              window.location.href = target.href;
+            } else {
+              target.click();
+            }
+          }
         };
       } else if (s.preClick) {
         // Re-enable pointer events after driver.js has positioned the popover
