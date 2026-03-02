@@ -5,9 +5,9 @@
   "use strict";
 
   // Don't run on the Hoff frontend
-  if (window.location.origin === "http://localhost:5173") return;
+  if (window.location.origin === HoffConfig.FRONTEND_BASE) return;
 
-  const BACKEND_URL = "http://localhost:8000";
+  const BACKEND_URL = HoffConfig.API_BASE;
 
   function getCookies(url) {
     return new Promise((resolve) => {
@@ -32,7 +32,7 @@
     return [{ origin, localStorage, sessionStorage }];
   }
 
-  const FRONTEND_URL = "http://localhost:5173";
+  const FRONTEND_URL = HoffConfig.FRONTEND_BASE;
 
   /** Route fetch through the background service worker to bypass PNA restrictions */
   function bgFetch(url, options) {

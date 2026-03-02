@@ -31,6 +31,7 @@
       "matches": ["<all_urls>"],
       "css": ["lib/driver.css", "hoff-glass.css"],
       "js": [
+        "config.js",
         "lib/driver.iife.js",
         "mock-payload.js",
         "hoff-ui.js",

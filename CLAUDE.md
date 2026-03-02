@@ -13,6 +13,7 @@ Hoff (Hands-Off) is a Chrome extension that generates AI-powered guided onboardi
 ```
 extension/
 ├── manifest.json           # MV3 extension config — permissions, content scripts, service worker
+├── config.js               # Environment config (IIFE → window.HoffConfig) — API_BASE, FRONTEND_BASE
 ├── background.js           # Service worker — proxy fetch (PNA), cookie extraction, messaging
 ├── content.js              # Main orchestrator — job lifecycle, API calls, wiring UI ↔ Tour
 ├── hoff-ui.js              # Chat bar + pills UI component (IIFE → window.HoffUI)
@@ -31,14 +32,15 @@ extension/
 
 Defined in `manifest.json`, injected at `document_idle` on all sites:
 
-1. `lib/driver.iife.js` — Tour library
-2. `hoff-glass.css` — Extension styles
-3. `mock-payload.js` — Mock backend (dev-only, remove for production)
-4. `hoff-ui.js` — UI component
-5. `hoff-tour.js` — Tour engine
-6. `content.js` — Orchestrator (depends on all above)
+1. `config.js` — Environment configuration (`window.HoffConfig`)
+2. `lib/driver.iife.js` — Tour library
+3. `hoff-glass.css` — Extension styles
+4. `mock-payload.js` — Mock backend (dev-only, remove for production)
+5. `hoff-ui.js` — UI component (reads `HoffConfig`)
+6. `hoff-tour.js` — Tour engine
+7. `content.js` — Orchestrator (reads `HoffConfig`, depends on all above)
 
-**Order matters.** `content.js` assumes `HoffUI` and `HoffTour` are already on `window`.
+**Order matters.** `config.js` must be first. `content.js` assumes `HoffConfig`, `HoffUI`, and `HoffTour` are already on `window`.
 
 ---
 
@@ -67,6 +69,7 @@ Tour playback (HoffTour)
 
 ### Global Objects
 
+- `window.HoffConfig` — Environment configuration (`API_BASE`, `FRONTEND_BASE`)
 - `window.HoffUI` — UI component API (init, setLoading, addPill, hide, show, etc.)
 - `window.HoffTour` — Tour engine API (start, getStoredState, clearState, etc.)
 
@@ -248,30 +251,30 @@ This extension ships raw JS/CSS — no transpilation, bundling, or minification.
 
 ## Environment Configuration
 
-### Current State
-
-Backend and frontend URLs are hardcoded:
+All environment-specific URLs are centralized in `config.js` via `window.HoffConfig`:
 
 ```javascript
-// content.js
-const BASE = "http://localhost:8000";
-const FRONTEND = "http://localhost:5173";
+window.HoffConfig = {
+  API_BASE: "http://localhost:8000",     // Backend API
+  FRONTEND_BASE: "http://localhost:5173", // Hoff frontend app
+};
 ```
 
-### Target State
+### How It Works
 
-Move to a configuration-based approach:
+- **Defaults** are set synchronously in `config.js` so all other scripts can read them immediately.
+- **Per-user overrides** are loaded from `chrome.storage.sync` (keys: `hoff_api_base`, `hoff_frontend_base`), which persists across devices.
+- All modules (`content.js`, `hoff-ui.js`) reference `HoffConfig.API_BASE` and `HoffConfig.FRONTEND_BASE` — never hardcoded URLs.
 
-1. Define defaults in a `config.js` file:
-   ```javascript
-   window.HoffConfig = {
-     API_BASE: "http://localhost:8000",
-     FRONTEND_BASE: "http://localhost:5173",
-   };
-   ```
-2. Allow overrides via `chrome.storage.sync` (persists across devices).
-3. Reference `HoffConfig.API_BASE` instead of hardcoded strings throughout.
-4. For production, update defaults to point to the deployed backend/frontend URLs.
+### Changing the Backend URL
+
+For local development with a different port or for production deployment, set the override in Chrome DevTools (extension context):
+
+```javascript
+chrome.storage.sync.set({ hoff_api_base: "https://api.hoff.app" });
+```
+
+For production, update the defaults in `config.js` directly.
 
 ---
 
@@ -367,7 +370,7 @@ Reference for backend integration and tour generation:
 - **PNA blocking:** Fetch calls from content scripts to `localhost` are blocked by Private Network Access. Always route through `bgFetch()` in the background service worker.
 - **Service worker termination:** Don't store state in background.js variables. The worker can die at any time.
 - **driver.js + Radix conflicts:** Radix UI components (aria-hidden, data-state) conflict with driver.js overlays. See `resetAndClick()` in hoff-tour.js for the workaround pattern.
-- **Injection order:** `content.js` depends on `HoffUI` and `HoffTour` being on `window`. If you add a new module, ensure it's listed before `content.js` in manifest.json.
+- **Injection order:** `config.js` must be first (all modules depend on `HoffConfig`). `content.js` must be last (depends on `HoffUI` and `HoffTour`). If you add a new module, place it between them in manifest.json.
 - **Tour generation counter:** `content.js` uses `tourGeneration` to prevent stale async callbacks from triggering tours from old requests. Always check the generation before acting on async results.
 
 ---

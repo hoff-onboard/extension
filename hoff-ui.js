@@ -52,7 +52,7 @@
     return container;
   }
 
-  const HOFF_LOGO_URL = "http://localhost:5173/?url=" + encodeURIComponent(window.location.hostname);
+  const HOFF_LOGO_URL = HoffConfig.FRONTEND_BASE + "/?url=" + encodeURIComponent(window.location.hostname);
 
   /** Create the logo button element */
   function createLogoBtn() {
@@ -223,7 +223,11 @@
     title.textContent = "Your flows";
     const subtitle = document.createElement("div");
     subtitle.className = "hoff-pills-subtitle";
-    subtitle.innerHTML = "Workflows we've helped you navigate in <span class=\"hoff-domain-highlight\">" + window.location.hostname + "</span>";
+    subtitle.appendChild(document.createTextNode("Workflows we've helped you navigate in "));
+    const domainSpan = document.createElement("span");
+    domainSpan.className = "hoff-domain-highlight";
+    domainSpan.textContent = window.location.hostname;
+    subtitle.appendChild(domainSpan);
     titleWrap.appendChild(title);
     titleWrap.appendChild(subtitle);
 
@@ -314,7 +318,7 @@
     for (const name of deletedNames) {
       chrome.runtime.sendMessage({
         action: "proxyFetch",
-        url: `http://localhost:8000/workflows/${encodeURIComponent(domain)}/${encodeURIComponent(name)}`,
+        url: `${HoffConfig.API_BASE}/workflows/${encodeURIComponent(domain)}/${encodeURIComponent(name)}`,
         options: { method: "DELETE" },
       }, () => {});
     }
